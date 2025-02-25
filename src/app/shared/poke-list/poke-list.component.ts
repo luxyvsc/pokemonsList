@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { PokeApiService } from 'src/app/service/poke-api.service';
+import { forkJoin, tap } from 'rxjs';
 
 @Component({
   selector: 'poke-list',
@@ -8,25 +9,48 @@ import { PokeApiService } from 'src/app/service/poke-api.service';
 })
 export class PokeListComponent implements OnInit {
 
-  private setAllPokemons: any;
-  public getAllPokemons: any;
+  private setAllPokemons: any[] = [];
+  public getAllPokemons: any[] = [];
+  private offset: number = 0;
+  private limit: number = 100;
+  private isLoading: boolean = false;
 
-  constructor( private pokeService: PokeApiService) { }
+  constructor(private pokeService: PokeApiService) { }
 
   ngOnInit() {
-    this.pokeService.apiListAllPokemons.subscribe(
-      res => {
-        this.setAllPokemons = res.results;
-        this.getAllPokemons = this.setAllPokemons;
-      }
-    )
+    this.loadMorePokemons();
   }
 
-  public getSearch( value: string) {
-    const filter = this.setAllPokemons.filter( ( res: any ) => {
-      return !res.name.indexOf(value.toLowerCase());
-    });
+  loadMorePokemons() {
+    if (this.isLoading) return;
+    this.isLoading = true;
 
-    this.getAllPokemons = filter;
+    this.pokeService.apiListAllPokemons(this.offset, this.limit).subscribe(res => {
+      const pokemonRequests = res.results.map((pokemon: any) =>
+        this.pokeService.apiGetPokemons(pokemon.url).pipe(
+          tap(details => pokemon.status = details)
+        )
+      );
+
+      forkJoin(pokemonRequests).subscribe(() => {
+        this.setAllPokemons.push(...res.results);
+        this.getAllPokemons = [...this.setAllPokemons];
+        this.offset += this.limit;
+        this.isLoading = false;
+      });
+    }, () => this.isLoading = false);
+  }
+
+  public getSearch(value: string) {
+    this.getAllPokemons = this.setAllPokemons.filter(res =>
+      res.name.toLowerCase().includes(value.toLowerCase())
+    );
+  }
+
+  @HostListener('window:scroll', [])
+  onScroll(): void {
+    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 100) {
+      this.loadMorePokemons();
+    }
   }
 }
