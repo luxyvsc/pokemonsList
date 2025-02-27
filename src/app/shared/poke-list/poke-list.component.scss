@@ -1,0 +1,77 @@
+@import '../../../config-scss/rem-calc.scss';
+@import '../../../config-scss/variables.scss';
+
+:host {
+  .list {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+
+    padding: rem-calc(20) 0;
+
+    .pokemon {
+        position: relative;
+        display: flex;
+        background-color: var(--light);
+
+        width: calc(49% - rem-calc(40));
+        height: rem-calc(157 - 40);
+
+        margin-bottom: rem-calc(10);
+        padding: rem-calc(20);
+
+        border-radius: rem-calc(10);
+
+        text-decoration: none;
+        color: var(--primary-color);
+
+        &_status {
+            h2 {
+                font-size: rem-calc(22);
+                font-style: italic;
+                font-weight: 700;
+                text-transform: capitalize;
+
+                margin-bottom: rem-calc(10);
+            }
+
+            ul {
+                display: flex;
+                flex-direction: column;
+
+                li {
+                    background-color: var(--gray);
+                    font-size: rem-calc(10);
+
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+
+                    width: rem-calc(60);
+                    margin-bottom: rem-calc(5);
+
+                    border-radius: rem-calc(50);
+                }
+            }
+        }
+
+        &_image {
+            position: absolute;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            width: rem-calc(110);
+            height: rem-calc(90);
+
+            bottom: rem-calc(20);
+            right: rem-calc(20);
+
+            img {
+                width: rem-calc(60);
+            }
+        }
+    }
+  }
+}
