@@ -141,6 +141,22 @@
 	}
 
 	@keyframes spin {
-	to { transform: rotate(360deg); }
+		to { transform: rotate(360deg); }
+	}
+
+
+	@media (max-width: 720px) {
+		main {
+			width: 100%;
+			padding: 0 rem-calc(20);
+	
+			.pokemon__status {
+				&__statistics {
+					min-height: 43.9vh;
+					padding-bottom: 1.125rem;
+				}
+			}
+		}
 	}
 }
+

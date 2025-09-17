@@ -43,9 +43,18 @@
     <button class="pagination-btn" (click)="prevPage()" [disabled]="currentPage === 1" aria-label="Página anterior">Anterior</button>
     <span class="pagination-info">
       Página
-      <input type="number" min="1" [max]="totalPages" [value]="currentPage" (change)="goToPage($event)" class="pagination-input" aria-label="Digite o número da página">
+      <input
+        type="number"
+        min="1"
+        [max]="totalPages"
+        [value]="currentPage"
+        (change)="goToPage($event)"
+        class="pagination-input"
+        aria-label="Digite o número da página"
+      >
       de <strong>{{ totalPages }}</strong>
     </span>
-  <button class="pagination-btn" (click)="nextPage()" [disabled]="currentPage >= totalPages" aria-label="Próxima página">Próxima</button>
+
+    <button class="pagination-btn" (click)="nextPage()" [disabled]="currentPage >= totalPages" aria-label="Próxima página">Próxima</button>
   </div>
 </section>

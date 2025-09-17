@@ -54,3 +54,10 @@
         background: #444;
     }
 }
+
+
+@media(max-width: 720px) {
+    form {
+        margin: 0 rem-calc(10);
+    }
+}
