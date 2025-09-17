@@ -1,4 +1,19 @@
-<form>
-    <input type="text" #pokemon (keyup)="search(pokemon.value)" placeholder="Buscar Pokemon...">
+
+<form autocomplete="off" (submit)="$event.preventDefault()">
+        <input
+            type="text"
+            [value]="searchValue"
+            #searchBox
+            (input)="onInput(searchBox.value)"
+            placeholder="Buscar Pokemon..."
+            aria-label="Buscar Pokemon"
+            autocomplete="off"
+            class="search-input"
+        >
     <img src="assets/icons/lupa.svg" alt="Buscar pokemon">
+    <ul *ngIf="suggestions.length > 0" class="suggestions-list">
+        <li *ngFor="let suggestion of suggestions" (click)="selectSuggestion(suggestion)">
+            {{ suggestion }}
+        </li>
+    </ul>
 </form>

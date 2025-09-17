@@ -1,7 +1,54 @@
+
 @import '../../../config-scss/rem-calc.scss';
 @import '../../../config-scss/variables.scss';
 
 :host {
+
+
+  .pagination-input {
+      width: 3.2rem;
+      text-align: center;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border: 1px solid #bfc9d1;
+      border-radius: 4px;
+      margin: 0 0.5rem;
+      background: #fff;
+      color: #222;
+      outline: none;
+      transition: border 0.2s;
+    }
+
+    .pagination-input:focus {
+      border: 1.5px solid var(--primary-color, #3498db);
+    }
+
+    .error-message {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+      background: #e74c3c;
+      padding: 1rem;
+      border-radius: 8px;
+      margin: 1rem 0;
+
+      p {
+        margin: 0;
+
+        button {
+          margin-left: 1rem;
+          background: #fff;
+          color: #e74c3c;
+          border: none;
+          border-radius: 4px;
+          padding: 0.3rem 0.8rem;
+          cursor: pointer;
+        }
+      }
+    }
+
   .list {
     display: flex;
     justify-content: space-between;
@@ -57,21 +104,95 @@
 
         &_image {
             position: absolute;
-
             display: flex;
             align-items: center;
             justify-content: center;
-
             width: rem-calc(110);
             height: rem-calc(90);
-
             bottom: rem-calc(20);
             right: rem-calc(20);
-
             img {
                 width: rem-calc(60);
             }
+            .no-image {
+                width: rem-calc(60);
+                height: rem-calc(60);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: #e0e0e0;
+                color: #888;
+                border-radius: 50%;
+                font-size: 0.9rem;
+                font-style: italic;
+                text-align: center;
+            }
         }
     }
-  }
+    }
+
+
+        .pagination {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1.5rem;
+            margin: 2rem 0 1rem 0;
+            font-size: 1.2rem;
+        }
+
+        .pagination-btn {
+            background: var(--primary-color, #3498db);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 0.5rem 1.2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+        }
+        .pagination-btn:disabled {
+            background: #bfc9d1;
+            color: #fff;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        .pagination-info {
+            color: #fff;
+            background: rgba(0,0,0,0.15);
+            border-radius: 6px;
+            padding: 0.4rem 1rem;
+            font-size: 1.1rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+
+    .spinner-container {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 2rem 0;
+        min-height: 60px;
+        position: relative;
+    }
+
+    .spinner {
+        border: 6px solid #f3f3f3;
+        border-top: 6px solid var(--primary-color, #3498db);
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
 }

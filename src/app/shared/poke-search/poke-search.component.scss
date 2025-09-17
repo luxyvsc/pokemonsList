@@ -5,23 +5,52 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-
+        position: relative;
         padding: rem-calc(15) rem-calc(20);
         background-color: rgba(255, 255, 255, 0.2);
         border-radius: rem-calc(10);
 
         input {
             width: 95%;
-            background: none;
+            background: transparent;
             border: none;
-
             font-size: rem-calc(18);
-
-            color: var(--light);
-
+            color: #fff;
+            border-radius: 6px;
+            padding: 0.4rem 0.8rem;
             &::placeholder {
-                color: var(--light);
+                color: #e0e0e0;
             }
         }
+    }
+
+        .search-input {
+            position: relative;
+            z-index: 2;
+        }
+
+    .suggestions-list {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 100%;
+        background: #222;
+        color: #fff;
+        border-radius: 0 0 8px 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+        margin: 0;
+        padding: 0.2rem 0;
+        list-style: none;
+        z-index: 10;
+        max-height: 220px;
+        overflow-y: auto;
+    }
+    .suggestions-list li {
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+        transition: background 0.15s;
+    }
+    .suggestions-list li:hover {
+        background: #444;
     }
 }

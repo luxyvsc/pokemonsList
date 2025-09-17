@@ -1,3 +1,4 @@
+
 <!-- Search -->
 <poke-search (emmitSearch)="getSearch($event)"></poke-search>
 
@@ -14,11 +15,37 @@
       </section>
 
       <section class="pokemon_image">
+        <ng-container *ngIf="pokemon.status.sprites?.other?.dream_world?.front_default; else noImage">
           <img
             [src]="pokemon.status.sprites.other.dream_world.front_default"
-            [alt]="pokemon.name"
+            [alt]="'Imagem do pokémon ' + pokemon.name"
+            role="img"
           >
+        </ng-container>
+        <ng-template #noImage>
+          <div class="no-image">Sem imagem</div>
+        </ng-template>
       </section>
   </a>
   </ng-template>
+
+
+  <div class="spinner-container" *ngIf="isLoading">
+  <div class="spinner" role="status" aria-label="Carregando" aria-live="polite"></div>
+  </div>
+
+  <div class="error-message" *ngIf="apiError">
+    <p *ngIf="getAllPokemons.length === 0">Pokémon não encontrado. <button (click)="loadPokemons()">Limpar busca</button></p>
+    <p *ngIf="getAllPokemons.length > 0">Ocorreu um erro ao carregar os pokémons. <button (click)="loadPokemons()">Tentar novamente</button></p>
+  </div>
+
+  <div class="pagination" *ngIf="!isLoading && (!getAllPokemons.length || getAllPokemons.length > 1)">
+    <button class="pagination-btn" (click)="prevPage()" [disabled]="currentPage === 1" aria-label="Página anterior">Anterior</button>
+    <span class="pagination-info">
+      Página
+      <input type="number" min="1" [max]="totalPages" [value]="currentPage" (change)="goToPage($event)" class="pagination-input" aria-label="Digite o número da página">
+      de <strong>{{ totalPages }}</strong>
+    </span>
+  <button class="pagination-btn" (click)="nextPage()" [disabled]="currentPage >= totalPages" aria-label="Próxima página">Próxima</button>
+  </div>
 </section>
