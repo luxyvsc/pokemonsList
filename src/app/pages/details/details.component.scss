@@ -116,4 +116,31 @@
 			}
 		}
 	}
+
+
+	.loading-container {
+	display: flex;
+	flex-direction: column;
+	gap: .75rem;
+	align-items: center;
+	justify-content: center;
+	min-height: 50vh;
+	color: #fff;
+	font: 500 1rem/1.2 "Segoe UI", Arial, sans-serif;
+	}
+
+	.spinner {
+	width: 64px;
+	height: 64px;
+	border: 6px solid rgba(255,255,255,0.15);
+	border-top-color: #fff;
+	border-right-color: #fff;
+	border-radius: 50%;
+	animation: spin .9s linear infinite;
+	box-shadow: 0 0 10px #fff;
+	}
+
+	@keyframes spin {
+	to { transform: rotate(360deg); }
+	}
 }
