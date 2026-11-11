@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { PokeApiService, PokemonListResponse, PokemonDetails } from 'src/app/service/poke-api.service';
-import { forkJoin, tap, of } from 'rxjs';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { PokeApiService, PokemonDetails } from 'src/app/service/poke-api.service';
+import { forkJoin, of, Subject, Subscription } from 'rxjs';
+import { map, switchMap, takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'poke-list',
@@ -8,7 +10,7 @@ import { forkJoin, tap, of } from 'rxjs';
   styleUrls: ['./poke-list.component.scss']
 })
 
-export class PokeListComponent implements OnInit {
+export class PokeListComponent implements OnInit, OnDestroy {
   public get totalPages(): number {
     return this.totalPokemons ? Math.ceil(this.totalPokemons / this.limit) : 1;
   }
@@ -19,36 +21,57 @@ export class PokeListComponent implements OnInit {
   public isLoading: boolean = false;
   public totalPokemons: number = 0;
 
-  constructor(private pokeService: PokeApiService) { }
+  private destroy$ = new Subject<void>();
+  private request?: Subscription;
 
+  constructor(
+    private pokeService: PokeApiService,
+    private route: ActivatedRoute,
+    private router: Router
+  ) { }
+
+  // A página fica na URL (?page=N): sobrevive ao "Voltar", ao F5 e pode ser compartilhada
   ngOnInit() {
-    this.loadPokemons();
+    this.route.queryParamMap.pipe(takeUntil(this.destroy$)).subscribe(params => {
+      const page = Number(params.get('page'));
+      this.currentPage = Number.isInteger(page) && page >= 1 ? page : 1;
+      this.loadPokemons();
+    });
+  }
+
+  ngOnDestroy() {
+    this.request?.unsubscribe();
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   loadPokemons() {
+    // Cancela a página anterior se o usuário clicar rápido em "Próxima"
+    this.request?.unsubscribe();
     this.isLoading = true;
     this.apiError = false;
     const offset = (this.currentPage - 1) * this.limit;
-    this.pokeService.apiListAllPokemons(offset, this.limit).subscribe(res => {
-      this.totalPokemons = res.count;
-      const pokemonRequests = res.results.map((pokemon) =>
-        this.pokeService.apiGetPokemons(pokemon.url).pipe(
-          tap(details => (pokemon as any).status = details)
-        )
-      );
-      forkJoin(pokemonRequests).subscribe(() => {
-        this.getAllPokemons = res.results.map((pokemon: any) => ({
-          name: pokemon.name,
-          status: pokemon.status
-        }));
+    this.request = this.pokeService.apiListAllPokemons(offset, this.limit).pipe(
+      switchMap(res => {
+        this.totalPokemons = res.count;
+        if (!res.results.length) {
+          return of([]);
+        }
+        return forkJoin(res.results.map(pokemon =>
+          this.pokeService.apiGetPokemons(pokemon.url).pipe(
+            map(status => ({ name: pokemon.name, status }))
+          )
+        ));
+      })
+    ).subscribe({
+      next: pokemons => {
+        this.getAllPokemons = pokemons;
         this.isLoading = false;
-      }, () => {
+      },
+      error: () => {
         this.apiError = true;
         this.isLoading = false;
-      });
-    }, () => {
-      this.apiError = true;
-      this.isLoading = false;
+      }
     });
   }
 
@@ -59,23 +82,24 @@ export class PokeListComponent implements OnInit {
     }
     // Só busca na API se o valor for igual a um nome válido (autocomplete)
     const validNames = (window as any).allPokemonNames || [];
+    this.request?.unsubscribe();
     if (validNames.includes(value.toLowerCase())) {
       this.isLoading = true;
       this.apiError = false;
-      this.pokeService.apiGetPokemons(`https://pokeapi.co/api/v2/pokemon/${value.toLowerCase()}`).subscribe(
-        details => {
+      this.request = this.pokeService.apiGetPokemons(`https://pokeapi.co/api/v2/pokemon/${value.toLowerCase()}`).subscribe({
+        next: details => {
           this.getAllPokemons = [{
             name: details.name,
             status: details
           }];
           this.isLoading = false;
         },
-        () => {
+        error: () => {
           this.getAllPokemons = [];
           this.isLoading = false;
           this.apiError = true;
         }
-      );
+      });
     } else {
       // Apenas limpa a lista e mostra sugestões, sem buscar na API
       this.getAllPokemons = [];
@@ -85,29 +109,32 @@ export class PokeListComponent implements OnInit {
   }
 
   public nextPage() {
-    if (this.currentPage * this.limit < this.totalPokemons) {
-      this.currentPage++;
-      this.loadPokemons();
+    if (this.currentPage < this.totalPages) {
+      this.goTo(this.currentPage + 1);
     }
   }
 
   public prevPage() {
     if (this.currentPage > 1) {
-      this.currentPage--;
-      this.loadPokemons();
+      this.goTo(this.currentPage - 1);
     }
   }
-
-
 
   public goToPage(event: Event) {
     const input = event.target as HTMLInputElement;
     const value = Number(input.value);
-    if (!isNaN(value) && value >= 1 && value <= this.totalPages) {
-      this.currentPage = value;
-      this.loadPokemons();
+    if (Number.isInteger(value) && value >= 1 && value <= this.totalPages) {
+      this.goTo(value);
     } else {
       input.value = String(this.currentPage);
     }
+  }
+
+  private goTo(page: number) {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { page: page > 1 ? page : null },
+      queryParamsHandling: 'merge'
+    });
   }
 }

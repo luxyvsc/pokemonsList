@@ -1,4 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Location } from '@angular/common';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { forkJoin, Subject, of } from 'rxjs';
 import { switchMap, takeUntil, catchError } from 'rxjs/operators';
@@ -20,8 +21,17 @@ export class DetailsComponent implements OnInit, OnDestroy {
 
   constructor(
     private route: ActivatedRoute,
-    private pokeApi: PokeApiService
+    private pokeApi: PokeApiService,
+    private location: Location
   ) {}
+
+  // Volta pelo histórico para manter a página da lista; em link direto cai no routerLink="/"
+  goBack(event: Event): void {
+    if ((history.state?.navigationId ?? 1) > 1) {
+      event.preventDefault();
+      this.location.back();
+    }
+  }
 
   ngOnInit(): void {
     this.route.paramMap

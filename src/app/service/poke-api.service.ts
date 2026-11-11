@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
 
 export interface PokemonListResponse {
   count: number;
@@ -29,15 +28,7 @@ export class PokeApiService {
 
   apiListAllPokemons(offset: number, limit: number): Observable<PokemonListResponse> {
     const url = `${this.baseUrl}?offset=${offset}&limit=${limit}`;
-    return this.http.get<PokemonListResponse>(url).pipe(
-      tap(res => {
-        res.results.forEach((pokemon: { url: string; status?: PokemonDetails }) => {
-          this.apiGetPokemons(pokemon.url).subscribe(
-            details => pokemon.status = details
-          );
-        });
-      })
-    );
+    return this.http.get<PokemonListResponse>(url);
   }
 
   public apiGetPokemons(url: string): Observable<PokemonDetails> {
